@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Index from "./pages/Index";
 import Directions from "./pages/Directions";
+import LocationDirections from "./pages/LocationDirections";
 import Departments from "./pages/Departments";
 import NotFound from "./pages/NotFound";
 
@@ -22,6 +23,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/directions" element={<Directions />} />
+            <Route path="/directions/:locationId" element={<LocationDirections />} />
             <Route path="/departments" element={<Departments />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
