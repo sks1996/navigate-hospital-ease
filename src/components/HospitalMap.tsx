@@ -1,15 +1,17 @@
-
 import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { MapPin } from "lucide-react";
 
 interface HospitalMapProps {
   className?: string;
   highlightedPath?: boolean;
+  floorInfo?: string | number;
 }
 
 const HospitalMap: React.FC<HospitalMapProps> = ({
   className = "",
   highlightedPath = false,
+  floorInfo = "1",
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -174,6 +176,15 @@ const HospitalMap: React.FC<HospitalMapProps> = ({
           className="w-full h-full"
           style={{ display: "block" }}
         />
+      </div>
+      
+      <div className="absolute bottom-4 right-4 glass rounded-lg px-4 py-3">
+        <div className="flex items-center gap-2 text-sm">
+          <MapPin className="h-4 w-4 text-hospital-600" />
+          <span className="font-medium">
+            Currently viewing: Floor {floorInfo}
+          </span>
+        </div>
       </div>
     </motion.div>
   );

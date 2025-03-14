@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -10,7 +9,6 @@ import DirectionPanel, { Direction } from "../components/DirectionPanel";
 import { LocationData } from "../components/LocationCard";
 import { toast } from "@/components/ui/use-toast";
 
-// Mock data for locations (in a real app, this would come from an API)
 const mockLocations: Record<string, LocationData> = {
   "emergency": {
     id: "emergency",
@@ -46,9 +44,7 @@ const mockLocations: Record<string, LocationData> = {
   }
 };
 
-// Mock directions data based on location
 const getDirectionsForLocation = (locationId: string): Direction[] => {
-  // In a real app, these would be fetched from an API based on the location
   const baseDirections: Direction[] = [
     {
       step: 1,
@@ -65,7 +61,6 @@ const getDirectionsForLocation = (locationId: string): Direction[] => {
     }
   ];
 
-  // Add location-specific directions
   switch(locationId) {
     case "emergency":
       return [
@@ -261,16 +256,11 @@ const LocationDirections: React.FC = () => {
             className="md:col-span-3 relative rounded-xl overflow-hidden border border-border/60 shadow-sm"
             style={{ minHeight: "600px" }}
           >
-            <HospitalMap className="absolute inset-0" highlightedPath={showDirections} />
-            
-            <div className="absolute bottom-4 right-4 glass rounded-lg px-4 py-3">
-              <div className="flex items-center gap-2 text-sm">
-                <MapPin className="h-4 w-4 text-hospital-600" />
-                <span className="font-medium">
-                  Currently viewing: {location ? `Floor ${location.floor}` : "Floor 1"}
-                </span>
-              </div>
-            </div>
+            <HospitalMap 
+              className="absolute inset-0" 
+              highlightedPath={showDirections} 
+              floorInfo={location ? location.floor : "1"}
+            />
           </motion.div>
         </div>
       </div>
