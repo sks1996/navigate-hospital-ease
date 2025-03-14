@@ -323,6 +323,7 @@ const LocationDirections: React.FC = () => {
               highlightedPath={showDirections} 
               floorInfo={location ? location.floor : "1"}
               userLocation={userLocation}
+              showGoogleMap={true}
             />
           </motion.div>
         </div>
