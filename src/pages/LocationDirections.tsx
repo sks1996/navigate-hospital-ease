@@ -1,7 +1,8 @@
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowDown, MapPin, Navigation } from "lucide-react";
+import { ArrowDown, MapPin, Navigation, Locate } from "lucide-react";
 import Layout from "../components/Layout";
 import SearchBar from "../components/SearchBar";
 import HospitalMap from "../components/HospitalMap";
@@ -153,6 +154,8 @@ const LocationDirections: React.FC = () => {
   const navigate = useNavigate();
   const [startLocation, setStartLocation] = useState("Main Entrance");
   const [showDirections, setShowDirections] = useState(true);
+  const [isLocating, setIsLocating] = useState(false);
+  const [userLocation, setUserLocation] = useState<GeolocationCoordinates | null>(null);
 
   const location = locationId ? mockLocations[locationId] : null;
   const directions = locationId ? getDirectionsForLocation(locationId) : [];
@@ -172,6 +175,54 @@ const LocationDirections: React.FC = () => {
     if (query) {
       setStartLocation(query);
     }
+  };
+
+  const handleUseCurrentLocation = () => {
+    setIsLocating(true);
+    
+    if (!navigator.geolocation) {
+      toast({
+        title: "Geolocation not supported",
+        description: "Your browser doesn't support geolocation features.",
+        variant: "destructive",
+      });
+      setIsLocating(false);
+      return;
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation(position.coords);
+        setStartLocation("Your Current Location");
+        setIsLocating(false);
+        toast({
+          title: "Location found",
+          description: "Using your current location as the starting point.",
+        });
+      },
+      (error) => {
+        let errorMessage = "Unknown error occurred.";
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = "Location permission was denied.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = "Location information is unavailable.";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "Location request timed out.";
+            break;
+        }
+        
+        toast({
+          title: "Location error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
   };
 
   return (
@@ -206,11 +257,22 @@ const LocationDirections: React.FC = () => {
                   <label className="block text-sm font-medium text-muted-foreground mb-1">
                     Starting Point
                   </label>
-                  <SearchBar
-                    placeholder="Current location or starting point..."
-                    onSearch={handleStartSearch}
-                    className="mb-2"
-                  />
+                  <div className="grid grid-cols-4 gap-2">
+                    <div className="col-span-3">
+                      <SearchBar
+                        placeholder="Current location or starting point..."
+                        onSearch={handleStartSearch}
+                        className="mb-2"
+                      />
+                    </div>
+                    <button 
+                      onClick={handleUseCurrentLocation}
+                      disabled={isLocating}
+                      className="col-span-1 flex justify-center items-center rounded-md bg-hospital-100 hover:bg-hospital-200 text-hospital-700 transition-colors"
+                    >
+                      <Locate className={`h-5 w-5 ${isLocating ? 'animate-pulse' : ''}`} />
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="flex justify-center">
@@ -260,6 +322,7 @@ const LocationDirections: React.FC = () => {
               className="absolute inset-0" 
               highlightedPath={showDirections} 
               floorInfo={location ? location.floor : "1"}
+              userLocation={userLocation}
             />
           </motion.div>
         </div>

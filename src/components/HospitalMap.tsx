@@ -1,17 +1,20 @@
+
 import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { MapPin } from "lucide-react";
+import { MapPin, Navigation } from "lucide-react";
 
 interface HospitalMapProps {
   className?: string;
   highlightedPath?: boolean;
   floorInfo?: string | number;
+  userLocation?: GeolocationCoordinates | null;
 }
 
 const HospitalMap: React.FC<HospitalMapProps> = ({
   className = "",
   highlightedPath = false,
   floorInfo = "1",
+  userLocation = null,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -139,6 +142,36 @@ const HospitalMap: React.FC<HospitalMapProps> = ({
         ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
         ctx.fill();
       }
+      
+      // Draw user location if available
+      if (userLocation) {
+        // For demo purposes, we'll place the user at the entrance of the main building
+        // In a real app, you would convert GPS coordinates to map coordinates
+        const userX = buildings[0].x - 20;
+        const userY = buildings[0].y + buildings[0].h + 20;
+        
+        // Draw user location dot with pulsing effect
+        const time = Date.now() / 1000;
+        const pulseSize = Math.sin(time * 4) * 2 + 8; // Pulse between 6-10px
+        
+        // Outer pulse circle
+        ctx.beginPath();
+        ctx.fillStyle = "rgba(0, 112, 243, 0.2)"; // hospital-600 with transparency
+        ctx.arc(userX, userY, pulseSize, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Inner dot
+        ctx.beginPath();
+        ctx.fillStyle = "#0070F3"; // hospital-600
+        ctx.arc(userX, userY, 4, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Label
+        ctx.fillStyle = "#002C66"; // hospital-900
+        ctx.font = "bold 12px Inter, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("You are here", userX, userY - 15);
+      }
     };
     
     drawMap();
@@ -151,7 +184,8 @@ const HospitalMap: React.FC<HospitalMapProps> = ({
       animationFrameId = requestAnimationFrame(animate);
     };
     
-    if (highlightedPath) {
+    // Always animate if user location or highlighted path is active
+    if (highlightedPath || userLocation) {
       animate();
     }
     
@@ -161,7 +195,7 @@ const HospitalMap: React.FC<HospitalMapProps> = ({
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [highlightedPath]);
+  }, [highlightedPath, userLocation]);
 
   return (
     <motion.div
@@ -186,6 +220,17 @@ const HospitalMap: React.FC<HospitalMapProps> = ({
           </span>
         </div>
       </div>
+      
+      {userLocation && (
+        <div className="absolute top-4 left-4 glass rounded-lg px-4 py-3">
+          <div className="flex items-center gap-2 text-sm">
+            <Navigation className="h-4 w-4 text-hospital-600" />
+            <span className="font-medium">
+              Using your current location
+            </span>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 };
